@@ -6,7 +6,7 @@
 /*   By: auzundag <auzundag@student.42istanbul.com.tr  + +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 16:25:52 by auzundag          #+#    #+#             */
-/*   Updated: 2026/02/18 17:20:01 by auzundag         ###   ########.fr       */
+/*   Updated: 2026/02/18 19:07:29 by auzundag         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,9 +102,11 @@ char	*get_next_line(int fd)
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	if (!stash)
+	{
 		stash = ft_calloc(1, 1);
-	if (!stash)
-		return (NULL);
+		if (!stash)
+			return (NULL);
+	}
 	tmp = read_file_and_join(stash, fd);
 	if (!tmp)
 		return (free_stash(&stash));
@@ -138,5 +140,6 @@ int	main(void)
 	free(str);
 	str = get_next_line(fd);
 	printf("%s", str);
+	close(fd);
 	return (0);
 }
