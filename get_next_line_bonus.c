@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: auzundag <auzundag@student.42istanbul.com.tr  + +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/12 16:25:52 by auzundag          #+#    #+#             */
-/*   Updated: 2026/02/18 17:20:01 by auzundag         ###   ########.fr       */
+/*   Created: 2026/02/18 15:08:07 by auzundag          #+#    #+#             */
+/*   Updated: 2026/02/18 15:09:41 by auzundag         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 static char	*clean_stash(char *stash)
 {
@@ -101,6 +101,8 @@ char	*get_next_line(int fd)
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
+	if (read(fd, 0, 0) < 0)
+		return (free_stash(&stash));
 	if (!stash)
 		stash = ft_calloc(1, 1);
 	if (!stash)
@@ -116,27 +118,4 @@ char	*get_next_line(int fd)
 		return (free(line), free_stash(&stash));
 	stash = clean_stash(stash);
 	return (line);
-}
-
-#include <fcntl.h>
-#include <stdio.h>
-
-int	main(void)
-{
-	int		fd;
-	char	*str;
-
-	fd = open("deneme.txt", O_CREAT | O_RDONLY, 0777);
-	str = get_next_line(fd);
-	printf("%s", str);
-	free(str);
-	str = get_next_line(fd);
-	printf("%s", str);
-	free(str);
-	str = get_next_line(fd);
-	printf("%s", str);
-	free(str);
-	str = get_next_line(fd);
-	printf("%s", str);
-	return (0);
 }
