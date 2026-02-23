@@ -6,7 +6,7 @@
 /*   By: auzundag <auzundag@student.42istanbul.com.tr  + +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 16:25:52 by auzundag          #+#    #+#             */
-/*   Updated: 2026/02/18 19:07:29 by auzundag         ###   ########.fr       */
+/*   Updated: 2026/02/23 10:51:56 by auzundag         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,36 +67,35 @@ static char	*free_stash(char **stash)
 	return (NULL);
 }
 
-static char	*read_file_and_join(char *stash, int fd)
+static char	*read_file_and_join(char **stash, int fd)
 {
 	char	*buffer;
-	char	*tmp;
+	char	*new_stash;
 	ssize_t	bytes_read;
 
 	buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	if (!buffer)
 		return (NULL);
 	bytes_read = 1;
-	while (!ft_strchr(stash, '\n') && bytes_read > 0)
+	while (!ft_strchr(*stash, '\n') && bytes_read > 0)
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_read == -1)
 			return (free(buffer), NULL);
 		buffer[bytes_read] = '\0';
-		tmp = ft_strjoin(stash, buffer);
-		if (!tmp)
+		new_stash = ft_strjoin(*stash, buffer);
+		if (!new_stash)
 			return (free(buffer), NULL);
-		free(stash);
-		stash = tmp;
+		free(*stash);
+		*stash = new_stash;
 	}
 	free(buffer);
-	return (stash);
+	return (*stash);
 }
 
 char	*get_next_line(int fd)
 {
 	static char	*stash;
-	char		*tmp;
 	char		*line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
@@ -107,10 +106,8 @@ char	*get_next_line(int fd)
 		if (!stash)
 			return (NULL);
 	}
-	tmp = read_file_and_join(stash, fd);
-	if (!tmp)
+	if (!read_file_and_join(&stash, fd))
 		return (free_stash(&stash));
-	stash = tmp;
 	line = line_handling(stash);
 	if (!line)
 		return (free_stash(&stash));
@@ -118,28 +115,4 @@ char	*get_next_line(int fd)
 		return (free(line), free_stash(&stash));
 	stash = clean_stash(stash);
 	return (line);
-}
-
-#include <fcntl.h>
-#include <stdio.h>
-
-int	main(void)
-{
-	int		fd;
-	char	*str;
-
-	fd = open("deneme.txt", O_CREAT | O_RDONLY, 0777);
-	str = get_next_line(fd);
-	printf("%s", str);
-	free(str);
-	str = get_next_line(fd);
-	printf("%s", str);
-	free(str);
-	str = get_next_line(fd);
-	printf("%s", str);
-	free(str);
-	str = get_next_line(fd);
-	printf("%s", str);
-	close(fd);
-	return (0);
 }

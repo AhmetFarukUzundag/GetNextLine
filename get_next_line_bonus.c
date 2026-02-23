@@ -6,7 +6,7 @@
 /*   By: auzundag <auzundag@student.42istanbul.com.tr  + +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/18 15:08:07 by auzundag          #+#    #+#             */
-/*   Updated: 2026/02/18 15:09:41 by auzundag         ###   ########.fr       */
+/*   Updated: 2026/02/23 11:06:42 by auzundag         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,55 +67,52 @@ static char	*free_stash(char **stash)
 	return (NULL);
 }
 
-static char	*read_file_and_join(char *stash, int fd)
+static char	*read_file_and_join(char **stash, int fd)
 {
 	char	*buffer;
-	char	*tmp;
+	char	*new_stash;
 	ssize_t	bytes_read;
 
 	buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	if (!buffer)
 		return (NULL);
 	bytes_read = 1;
-	while (!ft_strchr(stash, '\n') && bytes_read > 0)
+	while (!ft_strchr(*stash, '\n') && bytes_read > 0)
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_read == -1)
 			return (free(buffer), NULL);
 		buffer[bytes_read] = '\0';
-		tmp = ft_strjoin(stash, buffer);
-		if (!tmp)
+		new_stash = ft_strjoin(*stash, buffer);
+		if (!new_stash)
 			return (free(buffer), NULL);
-		free(stash);
-		stash = tmp;
+		free(*stash);
+		*stash = new_stash;
 	}
 	free(buffer);
-	return (stash);
+	return (*stash);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	*stash;
-	char		*tmp;
+	static char	*stash[1024];
 	char		*line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || fd >= 1024 || BUFFER_SIZE <= 0)
 		return (NULL);
-	if (read(fd, 0, 0) < 0)
-		return (free_stash(&stash));
-	if (!stash)
-		stash = ft_calloc(1, 1);
-	if (!stash)
-		return (NULL);
-	tmp = read_file_and_join(stash, fd);
-	if (!tmp)
-		return (free_stash(&stash));
-	stash = tmp;
-	line = line_handling(stash);
+	if (!stash[fd])
+	{
+		stash[fd] = ft_calloc(1, 1);
+		if (!stash[fd])
+			return (NULL);
+	}
+	if (!read_file_and_join(&stash[fd], fd))
+		return (free_stash(&stash[fd]));
+	line = line_handling(stash[fd]);
 	if (!line)
-		return (free_stash(&stash));
+		return (free_stash(&stash[fd]));
 	if (line[0] == '\0')
-		return (free(line), free_stash(&stash));
-	stash = clean_stash(stash);
+		return (free(line), free_stash(&stash[fd]));
+	stash[fd] = clean_stash(stash[fd]);
 	return (line);
 }
