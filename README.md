@@ -1,4 +1,8 @@
-*This project has been created as part of the 42 curriculum by auzundag.*
+# get_next_line
+
+Implementation of the 42 project `get_next_line`, developed by auzundag.
+
+*This project has been created as part of the 42 curriculum at 42.*
 
 ---
 
@@ -90,6 +94,10 @@ Use exactly the same `get_next_line` API; internally, the bonus uses an array of
 
 ### High‑level idea
 
+Below is a visual overview of how the buffer, stash, and returned lines interact while reading from the file descriptor:
+
+![get_next_line algorithm diagram](gnl_algorithm.png)
+
 The core constraint is that we can only read fixed-size chunks (`BUFFER_SIZE` bytes) and we must still return whole logical lines (ending at `\n` or EOF).
 To achieve this, we keep a static “stash” of data between calls:
 
@@ -179,7 +187,7 @@ Using a double pointer makes `read_file_and_join` responsible for keeping the st
   - Preserving data between calls without global state external to `get_next_line`,
   - Handling partial reads and arbitrary `BUFFER_SIZE`.
 
-This algorithm is the standard, robust approach for `get_next_line` at 42: it balances simplicity, correctness, and compliance with the project’s constraints while handling edge cases like:
+This algorithm is a standard, robust approach for `get_next_line` at 42: it balances simplicity, correctness, and compliance with the project’s constraints while handling edge cases like:
 
 - Empty files,
 - Files with a single character and no newline,
